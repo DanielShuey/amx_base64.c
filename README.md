@@ -12,7 +12,7 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 - [ ] Decode
 - [ ] Hi | Lo split shuffle?
 
-loremipsum_4096.txt @ 1,000,000 iterations w' 1 heap allocation & 1 thread
+ipsum_4096.txt @ 1,000,000 iterations w' 1 heap allocation & 1 thread
 
 | In      | Out    |
 | ------- | ------ |
