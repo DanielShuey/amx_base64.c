@@ -4,3 +4,4 @@ UseTab: ForIndentation
 BreakBeforeBraces: Linux
 AccessModifierOffset: -4
 ColumnLimit: 80
+AlignConsecutiveAssignments: Consecutive
