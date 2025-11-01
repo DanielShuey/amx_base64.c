@@ -25,3 +25,7 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 | Threads | Length | Input | Output |
 | ------- | ------ | ----- | ------ |
 | 1       | 4096   | ?     | ?      |
+
+## Special Thanks
+
+Ben Sims
