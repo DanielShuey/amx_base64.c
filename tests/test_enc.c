@@ -1,46 +1,11 @@
 #include "amx_base64.h"
+#include "test_helper.h"
 #include <assert.h>
-#include <stdio.h>
-#include <string.h>
-
-typedef struct {
-	char *data;
-	int len;
-	bool exists;
-} file;
-
-static file readfile(const char *filename)
-{
-	char *buffer = 0;
-	long length;
-	FILE *f = fopen(filename, "rb");
-
-	if (f) {
-		fseek(f, 0, SEEK_END);
-		length = ftell(f);
-		fseek(f, 0, SEEK_SET);
-		buffer = malloc(length);
-		if (buffer) {
-			fread(buffer, 1, length, f);
-		}
-		fclose(f);
-	}
-
-	file result;
-	if (buffer) {
-		result.data = buffer;
-		result.len = length;
-		result.exists = true;
-		return result;
-	} else {
-		return result;
-	}
-}
 
 char *b64enc(const char *s)
 {
-	int len = strlen(s);
-	char *buf = b64alloc(len);
+	int len   = strlen(s);
+	char *buf = amx_base64_alloc(len);
 	amx_base64_encode(s, len, buf);
 	return buf;
 }
@@ -82,15 +47,12 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 	assert(strncmp(b64enc(src), enc, strlen(enc)) == 0);
 }
 
-static inline int b64len(int n) { return ((n + 2) / 3) * 4; }
-#define buflen(n) ((n + 512 - 1) / 512) * 512
-
 void test_ipsum()
 {
-	file fsrc = readfile("fixtures/ipsum_4096.txt");
+	file fsrc       = readfile("fixtures/ipsum_4096.txt");
 	const char *src = fsrc.data;
 
-	file fenc = readfile("fixtures/ipsum_4096_enc.txt");
+	file fenc       = readfile("fixtures/ipsum_4096_enc.txt");
 	const char *enc = fenc.data;
 
 	assert(strncmp(b64enc(src), enc, strlen(enc) - 1) == 0);
