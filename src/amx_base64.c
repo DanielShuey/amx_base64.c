@@ -7,29 +7,27 @@ static constexpr int reg_mlshift = 6;
 static constexpr int reg_genascii = 5;
 static constexpr int reg_lutascii = 4;
 
-static inline int b64len(int n) { return ((n + 2) / 3) * 4; }
-static inline int b64pad(int n) { return (3 - (n % 3)) % 3; }
-
 static void loadtbls()
 {
-	constexpr static u8 shuftbl[64] = {0,  4,   1,  6,  41, 192, 28,  4, 146, 90, 128, 53,  7,
-	                                   30, 140, 64, 78, 10, 170, 189, 0, 103, 13, 54,  239, 0,
-	                                   0,  0,   0,  0,  0,  0,   0,   0, 0,   0,  0,   0,   0,
-	                                   0,  0,   0,  0,  0,  0,   0,   0, 0,   0,  0,   0,   0,
-	                                   0,  0,   0,  0,  0,  0,   0,   0, 0,   0,  0,   0};
+	constexpr static u8 shuftbl[64] = {
+	    0,  4,  1,   6,   41, 192, 28, 4,  146, 90, 128, 53, 7, 30, 140, 64,
+	    78, 10, 170, 189, 0,  103, 13, 54, 239, 0,  0,   0,  0, 0,  0,   0,
+	    0,  0,  0,   0,   0,  0,   0,  0,  0,   0,  0,   0,  0, 0,  0,   0,
+	    0,  0,  0,   0,   0,  0,   0,  0,  0,   0,  0,   0,  0, 0,  0,   0};
 
 	constexpr static char mlshift[64] = {
-	    0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64,
-	    16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,
-	    0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4,  0,  64, 16, 4};
+	    0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4,
+	    0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4,
+	    0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4,
+	    0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4, 0, 64, 16, 4};
 
-	constexpr static u16 genascii[32] = {0, 26, 52, 62, 63, 64, 0, 0, 0, 0,    0,
-	                                     0, 0,  0,  0,  0,  0,  0, 0, 0, 0,    0,
-	                                     0, 0,  0,  0,  0,  0,  0, 0, 0, 65535};
+	constexpr static u16 genascii[32] = {
+	    0, 26, 52, 62, 63, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 65535};
 
-	constexpr static i16 lutascii[32] = {65, 71, -4, -19, -16, 0, 0, 0, 0, 0,   0,
-	                                     0,  0,  0,  0,   0,   0, 0, 0, 0, 0,   0,
-	                                     0,  0,  0,  0,   0,   0, 0, 0, 0, -127};
+	constexpr static i16 lutascii[32] = {
+	    65, 71, -4, -19, -16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	    0,  0,  0,  0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -127};
 
 	ldy64(reg_mlshift, mlshift);
 	ldy64(reg_shuftbl, shuftbl);
@@ -43,7 +41,8 @@ static inline void readin(const char *s)
 	for (int i = 0; i < 8; i++) {
 		int srco = i * 48;
 		ldx64(i, s + srco + 24);
-		genlut(lu5i8, reg(reg_shuftbl), i, ztile(i), gnl_srcy | gnl_dstz);
+		genlut(lu5i8, reg(reg_shuftbl), i, ztile(i),
+		       gnl_srcy | gnl_dstz);
 		ldx64(i, s + srco);
 		genlut(lu5i8, reg(reg_shuftbl), i, i, gnl_srcy);
 		extrx(lndef, ztile(i), reg(i, 32), wrfirst(32));
@@ -58,7 +57,8 @@ static inline void cvtb64()
 		vecint(vizs, ln8, 0, 0, ztile(i, 1), zshift(2));
 	}
 	for (int i = 0; i < 8; i++) {
-		vecint(vimac, ln8p, reg(i, 1), reg(reg_mlshift, 1), ztile(i), zshift(8));
+		vecint(vimac, ln8p, reg(i, 1), reg(reg_mlshift, 1), ztile(i),
+		       zshift(8));
 	}
 }
 
@@ -91,6 +91,14 @@ static inline void bufwrite(const char *buf)
 	stx128(6, buf + 384);
 }
 
+static inline void b64pad(char *buf, int len)
+{
+	int enclen = ((len + 2) / 3) * 4;
+	int padlen = (3 - (len % 3)) % 3;
+	memset(buf + enclen - padlen, '=', padlen);
+	buf[enclen] = 0;
+}
+
 void amx_base64_encode(const char *s, int len, char *buf)
 {
 	int memptr = 0;
@@ -111,12 +119,7 @@ void amx_base64_encode(const char *s, int len, char *buf)
 		srcptr += 48 * 8;
 		memptr += 512;
 	}
-
-	int enclen = b64len(len);
-	int padlen = b64pad(len);
-
-	memset(buf + enclen - padlen, '=', padlen);
-	buf[b64len(len)] = 0;
+	b64pad(buf, len);
 
 	amxclr();
 }
