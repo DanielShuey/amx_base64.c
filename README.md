@@ -4,7 +4,7 @@ Ref: Daniel Lemiere (<https://github.com/lemire/fastbase64>)
 
 Research task for educational purposes only. Not recommended for production.
 
-Tried to do a Hi|Lo byte split but wasn't smart enough to pull it off :(. Using the provided lane widths (16/32/64) with `genlut` is quite simple to use however and still fast.
+Tried to do a Hi|Lo byte split but wasn't smart enough to pull it off :(. Using the provided lane widths (16/32/64) with `genlut` is quite simple to use however and still very fast.
 
 I will complete the rest later w' proper benchmarking code and maybe revisit the split.
 
@@ -16,6 +16,12 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 
 ## `amx_base64_encode`
 
-| Threads | Size | In      | Out    |
-| ------- | ---- | ------- | ------ |
-| 1       | 4096 | ~7.5GBs | ~10GBs |
+| Threads | Length | Input    | Output  |
+| ------- | ------ | -------- | ------- |
+| 1       | 4096   | ~7.5GB/s | ~10GB/s |
+
+## `amx_base64_decode`
+
+| Threads | Length | Input | Output |
+| ------- | ------ | ----- | ------ |
+| 1       | 4096   | ?     | ?      |
