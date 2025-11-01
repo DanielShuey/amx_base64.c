@@ -12,8 +12,10 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 - [ ] Decode
 - [ ] Hi | Lo split shuffle?
 
-ipsum_4096.txt @ 1,000,000 iterations w' 1 heap allocation & 1 thread
+> 1,000,000 iterations w' 1 heap allocation
 
-| In      | Out    |
-| ------- | ------ |
-| ~7.5GBs | ~10GBs |
+## `amx_base64_encode`
+
+| Threads | Size | In      | Out    |
+| ------- | ---- | ------- | ------ |
+| 1       | 4096 | ~7.5GBs | ~10GBs |
