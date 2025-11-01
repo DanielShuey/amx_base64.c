@@ -1,14 +1,7 @@
 #pragma once
+#include <stdlib.h>
 
-#include <stddef.h>
-
-struct amx_base64_string {
-	int len;
-	char data[];
-};
-
-typedef struct amx_base64_string amx_base64_encoded;
-typedef struct amx_base64_string amx_base64_decoded;
-
-amx_base64_encoded amx_base64_encode(const char *src);
-amx_base64_decoded amx_base64_decode(const char *src);
+#define buflen(n) ((n + 512 - 1) / 512) * 512
+static inline char *b64alloc(int n) { return malloc(buflen(n)); }
+void amx_base64_encode(const char *s, int len, char *buf);
+#undef buflen

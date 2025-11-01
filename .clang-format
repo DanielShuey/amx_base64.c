@@ -3,4 +3,4 @@ IndentWidth: 8
 UseTab: ForIndentation
 BreakBeforeBraces: Linux
 AccessModifierOffset: -4
-ColumnLimit: 100
+ColumnLimit: 80
