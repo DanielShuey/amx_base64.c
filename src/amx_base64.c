@@ -171,7 +171,7 @@ static inline void bufwrite(const char *buf)
 
 static inline void b64pad(char *buf, int len)
 {
-	int enclen = ((len + 2) / 3) * 4;
+	int enclen = base64_encode_len(len);
 	int padlen = (3 - (len % 3)) % 3;
 	memset(buf + enclen - padlen, '=', padlen);
 	buf[enclen] = 0;
