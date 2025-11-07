@@ -2,11 +2,11 @@
 #include "test_helper.h"
 #include <assert.h>
 
-char *b64enc(const char *s)
+char *b64dec(const char *s)
 {
 	int   len = strlen(s);
-	char *buf = amx_base64_encode_alloc(len);
-	amx_base64_encode(s, len, buf);
+	char *buf = amx_base64_decode_alloc(len);
+	amx_base64_decode(s, len, buf);
 
 	return buf;
 }
@@ -14,9 +14,9 @@ char *b64enc(const char *s)
 void test_go_by_example()
 {
 	// from https://gobyexample.com/base64-encoding
-	const char *src    = "abc123!?$*&()'-=@~";
+	const char *dec    = "abc123!?$*&()'-=@~";
 	const char *enc    = "YWJjMTIzIT8kKiYoKSctPUB+";
-	char       *result = b64enc(src);
+	char       *result = b64dec(dec);
 
 	assert(strncmp(result, enc, strlen(enc)) == 0);
 
@@ -26,9 +26,9 @@ void test_go_by_example()
 void test_tutorials_point()
 {
 	// from https://www.tutorialspoint.com/java8/java8_base64.htm
-	const char *src    = "TutorialsPoint?java8";
+	const char *dec    = "TutorialsPoint?java8";
 	const char *enc    = "VHV0b3JpYWxzUG9pbnQ/amF2YTg=";
-	char       *result = b64enc(src);
+	char       *result = b64dec(dec);
 
 	assert(strncmp(result, enc, strlen(enc)) == 0);
 
@@ -38,7 +38,7 @@ void test_tutorials_point()
 void test_wikipedia()
 {
 	// from Wikipedia page
-	const char *src =
+	const char *dec =
 	    "Man is distinguished, not only by his reason, but by this singular passion from \
 other animals, which is a lust of the mind, that by a perseverance of delight \
 in the continued and indefatigable generation of knowledge, exceeds the short \
@@ -51,7 +51,7 @@ dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu\
 dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo\
 ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
-	char *result = b64enc(src);
+	char *result = b64dec(dec);
 
 	assert(strncmp(result, enc, strlen(enc)) == 0);
 
@@ -62,7 +62,7 @@ void test_ipsum()
 {
 	file  fsrc   = readfile("fixtures/ipsum_4096.txt");
 	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
-	char *result = b64enc(fsrc.data);
+	char *result = b64dec(fsrc.data);
 
 	assert(strncmp(result, fenc.data, strlen(fenc.data) - 1) == 0);
 
