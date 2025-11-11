@@ -24,6 +24,7 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 
 | Threads     | Length | Input    | Output   |
 | ----------- | ------ | -------- | -------- |
+| ? (iPhone)  | 4096   | ?        | ?        |
 | 1 (iMac)    | 4096   | ~7.5GB/s | ~10GB/s  |
 | Theoretical |        |          |          |
 | 2? (Max)    | 4096   | ~15GB/s? | ~20GB/s? |
