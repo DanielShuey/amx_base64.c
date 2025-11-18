@@ -2,7 +2,7 @@
 #include "test_helper.h"
 #include <assert.h>
 
-char *b64dec(const char *s)
+static char *b64dec(const char *s)
 {
 	int   len = strlen(s);
 	char *buf = amx_base64_decode_alloc(len);
@@ -11,31 +11,31 @@ char *b64dec(const char *s)
 	return buf;
 }
 
-void test_go_by_example()
+static void test_go_by_example()
 {
 	// from https://gobyexample.com/base64-encoding
 	const char *dec    = "abc123!?$*&()'-=@~";
 	const char *enc    = "YWJjMTIzIT8kKiYoKSctPUB+";
-	char       *result = b64dec(dec);
+	char       *result = b64dec(enc);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(strncmp(result, dec, strlen(dec)) == 0);
 
 	free(result);
 }
 
-void test_tutorials_point()
+static void test_tutorials_point()
 {
 	// from https://www.tutorialspoint.com/java8/java8_base64.htm
 	const char *dec    = "TutorialsPoint?java8";
 	const char *enc    = "VHV0b3JpYWxzUG9pbnQ/amF2YTg=";
-	char       *result = b64dec(dec);
+	char       *result = b64dec(enc);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(strncmp(result, dec, strlen(dec)) == 0);
 
 	free(result);
 }
 
-void test_wikipedia()
+static void test_wikipedia()
 {
 	// from Wikipedia page
 	const char *dec =
@@ -51,27 +51,27 @@ dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu\
 dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo\
 ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
-	char *result = b64dec(dec);
+	char *result = b64dec(enc);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(strncmp(result, dec, strlen(dec)) == 0);
 
 	free(result);
 }
 
-void test_ipsum()
+static void test_ipsum()
 {
 	file  fsrc   = readfile("fixtures/ipsum_4096.txt");
 	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
-	char *result = b64dec(fsrc.data);
+	char *result = b64dec(fenc.data);
 
-	assert(strncmp(result, fenc.data, strlen(fenc.data) - 1) == 0);
+	assert(strncmp(result, fsrc.data, strlen(fsrc.data) - 1) == 0);
 
 	free(result);
 	free(fsrc.data);
 	free(fenc.data);
 }
 
-int main()
+int test_dec()
 {
 	test_go_by_example();
 	test_tutorials_point();

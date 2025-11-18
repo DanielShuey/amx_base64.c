@@ -2,7 +2,7 @@
 #include "test_helper.h"
 #include <assert.h>
 
-char *b64enc(const char *s)
+static char *b64enc(const char *s)
 {
 	int   len = strlen(s);
 	char *buf = amx_base64_encode_alloc(len);
@@ -11,7 +11,7 @@ char *b64enc(const char *s)
 	return buf;
 }
 
-void test_go_by_example()
+static void test_go_by_example()
 {
 	// from https://gobyexample.com/base64-encoding
 	const char *src    = "abc123!?$*&()'-=@~";
@@ -23,7 +23,7 @@ void test_go_by_example()
 	free(result);
 }
 
-void test_tutorials_point()
+static void test_tutorials_point()
 {
 	// from https://www.tutorialspoint.com/java8/java8_base64.htm
 	const char *src    = "TutorialsPoint?java8";
@@ -35,7 +35,7 @@ void test_tutorials_point()
 	free(result);
 }
 
-void test_wikipedia()
+static void test_wikipedia()
 {
 	// from Wikipedia page
 	const char *src =
@@ -58,7 +58,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 	free(result);
 }
 
-void test_ipsum()
+static void test_ipsum()
 {
 	file  fsrc   = readfile("fixtures/ipsum_4096.txt");
 	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
@@ -71,7 +71,7 @@ void test_ipsum()
 	free(fenc.data);
 }
 
-int main()
+int test_enc()
 {
 	test_go_by_example();
 	test_tutorials_point();

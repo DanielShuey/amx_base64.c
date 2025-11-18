@@ -60,7 +60,7 @@ static inline void bufwrite(const char *buf)
 	stx128(6, buf + 384);
 }
 
-void amx_base64_encode(const char *s, int len, char *buf)
+void amx_base64_decode(const char *s, int len, char *buf)
 {
 	int memptr = 0;
 	int srcptr = 0;

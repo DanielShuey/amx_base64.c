@@ -28,6 +28,6 @@ else()
 	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-add_executable(amx_base64_tests tests/test_enc.c tests/test_dec.c)
+add_executable(amx_base64_tests tests/run_tests.c tests/test_enc.c tests/test_dec.c)
 target_link_libraries(amx_base64_tests PRIVATE ${PROJECT_NAME})
 target_include_directories(amx_base64_tests PUBLIC src)
