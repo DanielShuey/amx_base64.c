@@ -60,6 +60,11 @@ static inline void ldx64(u64 reg, const void *ptr)
 	amx(0, reg << 56 | (u64)ptr);
 }
 
+static inline void ldx256(u64 reg, const void *ptr)
+{
+	amx(0, 1ull << 62 | 1ull << 60 | reg << 56 | (u64)ptr);
+}
+
 static inline void ldy64(u64 reg, const void *ptr)
 {
 	amx(1, reg << 56 | (u64)ptr);

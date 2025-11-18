@@ -38,9 +38,8 @@ static void loadtbls()
 
 static inline void readin(const char *s)
 {
-	for (int i = 0; i < 8; i++) {
-		ldx64(i, s + (i * 64));
-	}
+	ldx256(0, s);
+	ldx256(4, s + 256);
 }
 
 static inline void cvtb64()
