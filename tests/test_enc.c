@@ -18,7 +18,7 @@ static void test_go_by_example()
 	const char *enc    = "YWJjMTIzIT8kKiYoKSctPUB+";
 	char       *result = b64enc(src);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(!strncmp(result, enc, strlen(enc)));
 
 	free(result);
 }
@@ -30,7 +30,7 @@ static void test_tutorials_point()
 	const char *enc    = "VHV0b3JpYWxzUG9pbnQ/amF2YTg=";
 	char       *result = b64enc(src);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(!strncmp(result, enc, strlen(enc)));
 
 	free(result);
 }
@@ -53,7 +53,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
 	char *result = b64enc(src);
 
-	assert(strncmp(result, enc, strlen(enc)) == 0);
+	assert(!strncmp(result, enc, strlen(enc)));
 
 	free(result);
 }
@@ -64,7 +64,7 @@ static void test_ipsum()
 	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
 	char *result = b64enc(fsrc.data);
 
-	assert(strncmp(result, fenc.data, strlen(fenc.data) - 1) == 0);
+	assert(!strncmp(result, fenc.data, strlen(fenc.data) - 1));
 
 	free(result);
 	free(fsrc.data);

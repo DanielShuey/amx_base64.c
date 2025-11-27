@@ -6,7 +6,7 @@
 
 static inline int amx_base64_encode_padding(int n) { return (3 - (n % 3)) % 3; }
 
-static inline int amx_base64_encode_len(int n) { return (n / 3) * 4; }
+static inline int amx_base64_encode_len(int n) { return ((n + 2) / 3) * 4; }
 
 static inline int amx_base64_decode_len(int n)
 {
