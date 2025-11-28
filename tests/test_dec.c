@@ -62,8 +62,8 @@
 //
 // static void test_ipsum()
 // {
-// 	file  fsrc   = readfile("fixtures/ipsum_4096.txt");
-// 	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
+// 	file  fsrc   = readfile("tests/ipsum_4096.txt");
+// 	file  fenc   = readfile("tests/ipsum_4096_enc.txt");
 // 	char *result = b64dec(fenc.data);
 //
 // 	assert(strncmp(result, fsrc.data, strlen(fsrc.data) - 1) == 0);

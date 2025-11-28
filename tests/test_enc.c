@@ -60,8 +60,8 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
 static void test_ipsum()
 {
-	file  fsrc   = readfile("fixtures/ipsum_4096.txt");
-	file  fenc   = readfile("fixtures/ipsum_4096_enc.txt");
+	file  fsrc   = readfile("tests/ipsum_4096.txt");
+	file  fenc   = readfile("tests/ipsum_4096_enc.txt");
 	char *result = b64enc(fsrc.data);
 
 	assert(!strncmp(result, fenc.data, strlen(fenc.data) - 1));
