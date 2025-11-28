@@ -2,28 +2,16 @@
 
 #include <stdlib.h>
 
-#define buflen(n) ((n + 512 - 1) / 512) * 512
+#define overload __attribute__((overloadable))
 
-static inline int amx_base64_encode_padding(int n) { return (3 - (n % 3)) % 3; }
+typedef struct {
+        char  *dat;
+        size_t len;
+        size_t srclen;
+} amx_base64_result;
 
-static inline int amx_base64_encode_len(int n) { return ((n + 2) / 3) * 4; }
+overload void amx_base64_encode(const char *s, amx_base64_result *b64);
 
-static inline int amx_base64_decode_len(int n)
-{
-        return (n / 4) * 3 - amx_base64_encode_padding(n);
-}
+overload amx_base64_result amx_base64_encode(const char *s);
 
-static inline char *amx_base64_encode_alloc(int n)
-{
-        return malloc(buflen(amx_base64_encode_len(n)));
-}
-
-static inline char *amx_base64_decode_alloc(int n)
-{
-        return malloc(buflen(amx_base64_decode_len(n)));
-}
-
-void amx_base64_decode(const char *s, int len, char *buf);
-void amx_base64_encode(const char *s, int len, char *buf);
-
-#undef buflen
+#undef overload

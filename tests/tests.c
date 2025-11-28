@@ -22,19 +22,11 @@ dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu\
 dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo\
 ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
-static char *b64enc(const char *s)
+static void test(const char *input, const char *expect)
 {
-        int   len = strlen(s);
-        char *buf = amx_base64_encode_alloc(len);
-        amx_base64_encode(s, len, buf);
-        return buf;
-}
-
-static void test(const char *src, const char *expected)
-{
-        char *result = b64enc(src);
-        assert(!strncmp(result, expected, strlen(expected)));
-        free(result);
+        amx_base64_result result = amx_base64_encode(input);
+        assert(!strncmp(result.dat, expect, strlen(expect)));
+        free(result.dat);
 }
 
 static void enc_go_by_example()
@@ -57,17 +49,9 @@ static void enc_wikipedia()
 
 static void enc_ipsum()
 {
-        char *result = b64enc(ipsum4096);
-        assert(!strncmp(result, ipsum4096enc, strlen(ipsum4096enc) - 1));
-        free(result);
-}
-
-static char *b64dec(const char *s)
-{
-        int   len = strlen(s);
-        char *buf = amx_base64_decode_alloc(len);
-        amx_base64_decode(s, len, buf);
-        return buf;
+        amx_base64_result result = amx_base64_encode(ipsum4096);
+        assert(!strncmp(result.dat, ipsum4096enc, strlen(ipsum4096enc) - 1));
+        free(result.dat);
 }
 
 static void dec_go_by_example()
