@@ -65,13 +65,6 @@ static inline void extrx(lnwidth lx, u64 z, u64 bx, u64 opt) { amx(8, 1ull << 26
 static inline void vecint(aluvi alu, lnwidth ln, u64 bx, u64 by, u64 z, u64 opt) { amx(18, alu | ln | bx << 10 | by | z << 20 | opt); }
 // clang-format on
 
-// Load
-// LUT (Reverse)
-// RShift/Sum
-// Shufflejoin
-// Extrjoin
-// Store
-
 static void decprep() {}
 
 static inline void decread(const char *s)
