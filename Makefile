@@ -1,20 +1,28 @@
 .PHONY: debug release test clean
 
+FDEBUG=-std=c23 -Isrc -MJ build/compile_commands.tmp -Wno-everything
+SRC=src/amxb64enc.c
+
 debug:
 	@mkdir -p build/debug
-	@cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug > /dev/null
 	@printf "→ Building @ %s\n" build/debug
-	@ninja -j10 -C build/debug -d keepdepfile
+	$(CC) src/amxb64enc.c -c $(FDEBUG)
+	@mv amxb64enc.o build/debug/amxb64enc.o
+	@echo "[`sed 's/.$$//' build/compile_commands.tmp`]" > build/compile_commands.tmp
+	@jq '(.[]["arguments"]) |= map(select(. != "-Xclang" and (contains("clang-vendor-feature") | not) and . != "-fno-odr-hash-protocols"))' build/compile_commands.tmp > build/compile_commands.json
 
-release:
-	@mkdir -p build/release
-	@cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Debug > /dev/null
-	@printf "→ Building @ %s\n" build/release
-	@ninja -j10 -C build/release -d keepdepfile
+# release:
+# 	@mkdir -p build/release
+# 	@printf "→ Building @ %s\n" build/release
+# 	$(CC) ios_json.c -c -std=c23 -O3 -march=native -fblocks
+# 	@mv ios_json.o build/release/ios_json.o
 
-test: debug
+test:
+	@mkdir -p build/test
+	$(CC) src/*.c tests/*.c $(FDEBUG) -Itests
 	@printf "→ Running tests\n"
-	build/debug/amx_base64_tests
+	@mv a.out build/test/unit
+	build/test/unit
 
 clean:
 	@rm -rf build
