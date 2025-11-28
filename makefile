@@ -5,7 +5,7 @@ FDEBUG=-std=c23 -MJ build/compile_commands.tmp -Wno-everything
 debug:
 	@mkdir -p build/debug
 	@printf "→ Building @ %s\n" build/debug
-	$(CC) amx_base64.c -c $(FDEBUG)
+	$(CC) amx_base64.c -c $(FDEBUG) -I.
 	@mv amx_base64.o build/debug
 	@echo "[`sed 's/.$$//' build/compile_commands.tmp`]" > build/compile_commands.tmp
 	@jq '(.[]["arguments"]) |= map(select(. != "-Xclang" and (contains("clang-vendor-feature") | not) and . != "-fno-odr-hash-protocols"))' build/compile_commands.tmp > build/compile_commands.json

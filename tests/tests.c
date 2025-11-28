@@ -1,4 +1,4 @@
-#include "amx_base64.h"
+#include "../amx_base64.h"
 #include <assert.h>
 
 static const unsigned char ipsum4096[] = {
