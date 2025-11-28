@@ -24,89 +24,89 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
 static char *b64enc(const char *s)
 {
-	int   len = strlen(s);
-	char *buf = amx_base64_encode_alloc(len);
-	amx_base64_encode(s, len, buf);
-	return buf;
+        int   len = strlen(s);
+        char *buf = amx_base64_encode_alloc(len);
+        amx_base64_encode(s, len, buf);
+        return buf;
 }
 
 static void test(const char *src, const char *expected)
 {
-	char *result = b64enc(src);
-	assert(!strncmp(result, expected, strlen(expected)));
-	free(result);
+        char *result = b64enc(src);
+        assert(!strncmp(result, expected, strlen(expected)));
+        free(result);
 }
 
 static void enc_go_by_example()
 {
-	// from https://gobyexample.com/base64-encoding
-	test("abc123!?$*&()'-=@~", "YWJjMTIzIT8kKiYoKSctPUB+");
+        // from https://gobyexample.com/base64-encoding
+        test("abc123!?$*&()'-=@~", "YWJjMTIzIT8kKiYoKSctPUB+");
 }
 
 static void enc_tutorials_point()
 {
-	// from https://www.tutorialspoint.com/java8/java8_base64.htm
-	test("TutorialsPoint?java8", "VHV0b3JpYWxzUG9pbnQ/amF2YTg=");
+        // from https://www.tutorialspoint.com/java8/java8_base64.htm
+        test("TutorialsPoint?java8", "VHV0b3JpYWxzUG9pbnQ/amF2YTg=");
 }
 
 static void enc_wikipedia()
 {
-	// from Wikipedia page
-	test(wiki_src, wiki_enc);
+        // from Wikipedia page
+        test(wiki_src, wiki_enc);
 }
 
 static void enc_ipsum()
 {
-	char *result = b64enc(ipsum4096);
-	assert(!strncmp(result, ipsum4096enc, strlen(ipsum4096enc) - 1));
-	free(result);
+        char *result = b64enc(ipsum4096);
+        assert(!strncmp(result, ipsum4096enc, strlen(ipsum4096enc) - 1));
+        free(result);
 }
 
 static char *b64dec(const char *s)
 {
-	int   len = strlen(s);
-	char *buf = amx_base64_decode_alloc(len);
-	amx_base64_decode(s, len, buf);
-	return buf;
+        int   len = strlen(s);
+        char *buf = amx_base64_decode_alloc(len);
+        amx_base64_decode(s, len, buf);
+        return buf;
 }
 
 static void dec_go_by_example()
 {
-	// from https://gobyexample.com/base64-encoding
+        // from https://gobyexample.com/base64-encoding
 }
 
 static void dec_tutorials_point()
 {
-	// from https://www.tutorialspoint.com/java8/java8_base64.htm
+        // from https://www.tutorialspoint.com/java8/java8_base64.htm
 }
 
 static void dec_wikipedia()
 {
-	// from Wikipedia page
+        // from Wikipedia page
 }
 
 static void dec_ipsum() {}
 
 int test_enc()
 {
-	enc_go_by_example();
-	enc_tutorials_point();
-	enc_wikipedia();
-	enc_ipsum();
-	return 0;
+        enc_go_by_example();
+        enc_tutorials_point();
+        enc_wikipedia();
+        enc_ipsum();
+        return 0;
 }
 
 int test_dec()
 {
-	dec_go_by_example();
-	dec_tutorials_point();
-	dec_wikipedia();
-	dec_ipsum();
-	return 0;
+        dec_go_by_example();
+        dec_tutorials_point();
+        dec_wikipedia();
+        dec_ipsum();
+        return 0;
 }
 
 int main()
 {
-	test_enc();
-	test_dec();
+        test_enc();
+        test_dec();
 }
