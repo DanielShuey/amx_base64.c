@@ -1,6 +1,13 @@
 #include "amx_base64.h"
-#include "test_helper.h"
 #include <assert.h>
+
+static const unsigned char ipsum4096[] = {
+#embed "ipsum_4096.txt"
+    , 0};
+
+static const unsigned char ipsum4096enc[] = {
+#embed "ipsum_4096_enc.txt"
+    , 0};
 
 static char *b64enc(const char *s)
 {
@@ -60,15 +67,9 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
 static void test_ipsum()
 {
-	file  fsrc   = readfile("tests/ipsum_4096.txt");
-	file  fenc   = readfile("tests/ipsum_4096_enc.txt");
-	char *result = b64enc(fsrc.data);
-
-	assert(!strncmp(result, fenc.data, strlen(fenc.data) - 1));
-
+	char *result = b64enc(ipsum4096);
+	assert(!strncmp(result, ipsum4096enc, strlen(ipsum4096enc) - 1));
 	free(result);
-	free(fsrc.data);
-	free(fenc.data);
 }
 
 int test_enc()

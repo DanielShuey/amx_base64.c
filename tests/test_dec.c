@@ -1,5 +1,4 @@
 #include "amx_base64.h"
-#include "test_helper.h"
 #include <assert.h>
 
 // static char *b64dec(const char *s)
