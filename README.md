@@ -4,9 +4,9 @@ _For Apple AMX_
 
 This software is available under the following license: [BSD 2-Clause](#license)
 
-Ref: Daniel Lemiere (<https://github.com/lemire/fastbase64>)
-
 Ref: Peter Cawley (<https://github.com/corsix/amx/>)
+
+Ref: Daniel Lemiere (<https://github.com/lemire/fastbase64>)
 
 Research task for educational purposes only. Not recommended for production.
 
