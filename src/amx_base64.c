@@ -1,12 +1,9 @@
 #include "amx_base64.h"
-
 #include <stdlib.h>
 #include <string.h>
-
 // clang-format off
 #define nop_op_imm5(op, imm5)                                                                      \
 	__asm("nop\nnop\nnop\n.word (0x201000 + (%0 << 5) + %1)" : : "i"(op), "i"(imm5) : "memory")
-
 #define amx(op, gpr) \
 	__asm(".word (0x201000 + (%0 << 5) + 0%1 - ((0%1 >> 4) * 6))": : "i"(op), "r"((u64)(gpr)) : "memory");
 // clang-format on
@@ -55,11 +52,11 @@ static inline wrmode wrfirst(u64 n) { return 4ull << 38 | n << 32; }
 
 static inline void amxset() { nop_op_imm5(17, 0); }
 static inline void amxclr() { nop_op_imm5(17, 1); }
-static inline void ldx64(u64 reg, u64 ptr) { amx(0, reg << 56 | ptr); }
-static inline void ldy64(u64 reg, u64 ptr) { amx(1, reg << 56 | ptr); }
+static inline void ldx64(u64 yr, u64 ptr) { amx(0, yr << 56 | ptr); }
+static inline void ldy64(u64 yr, u64 ptr) { amx(1, yr << 56 | ptr); }
 // clang-format off
-static inline void ldx256(u64 reg, u64 ptr) { amx(0, 1ull << 62 | 1ull << 60 | reg << 56 | ptr); }
-static inline void stx128(u64 reg, u64 ptr) { amx(2, 1ull << 62 | reg << 56 | ptr); }
+static inline void ldx256(u64 xr, u64 ptr) { amx(0, 1ull << 62 | 1ull << 60 | xr << 56 | ptr); }
+static inline void stx128(u64 xr, u64 ptr) { amx(2, 1ull << 62 | xr << 56 | ptr); }
 static inline void genlut(alugnl alu, u64 bsrc, u64 tbl, u64 dst, u64 opt) { amx(22, alu | bsrc | tbl << 60 | dst << 20 | opt); }
 static inline void extrx(lnwidth lx, u64 z, u64 bx, u64 opt) { amx(8, 1ull << 26 | lx | z << 20 | bx | opt); }
 static inline void vecint(aluvi alu, lnwidth ln, u64 bx, u64 by, u64 z, u64 opt) { amx(18, alu | ln | bx << 10 | by | z << 20 | opt); }
@@ -136,24 +133,24 @@ static inline void encextr()
 		extrx(lx8p, ZR(i), XR(i), 0);
 }
 
-static inline void enclut(int zo)
+static inline void enclut(int bz)
 {
 	for (int i = 0; i < 4; i++) {
-		extrx(0, ZR(i, zo), XR(i), wrclr);
-		extrx(0, ZR(i, zo), XR(i), wrevn);
+		extrx(0, ZR(i, bz), XR(i), wrclr);
+		extrx(0, ZR(i, bz), XR(i), wrevn);
 	}
 	for (int i = 0; i < 4; i++) {
 		genlut(gn5u16, XR(i), RGEN, i, gnl_dsty | gnl_tbly);
-		genlut(lu5i16, XR(i), RLUT, ZR(i, zo),
+		genlut(lu5i16, XR(i), RLUT, ZR(i, bz),
 		       gnl_dstz | gnl_srcy | gnl_tbly);
-		vecint(vixac, 0, XR(i), XR(i), ZR(i, zo), ysign);
+		vecint(vixac, 0, XR(i), XR(i), ZR(i, bz), ysign);
 	}
 }
 
 static inline void encout(const char *buf)
 {
 	for (int i = 0; i < 8; i += 2)
-		stx128(i, buf + (64 * i));
+		stx128(i, buf + XR(i));
 }
 
 static inline void encpad(char *buf, int len)
