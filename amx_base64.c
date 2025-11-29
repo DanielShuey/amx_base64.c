@@ -1,4 +1,5 @@
 #include "amx_base64.h"
+#include "debug.h"
 #include <stdlib.h>
 #include <string.h>
 // clang-format off
@@ -17,9 +18,13 @@ typedef amx_base64_result b64; typedef size_t ptr;
 #define YR(idx, ...) (((u64)(idx) * 64) __VA_OPT__(+(u64)(__VA_ARGS__)))
 #define ZR(idx, ...) (((u64)(idx) * 8) __VA_OPT__(+(u64)(__VA_ARGS__)))
 
-typedef enum : u64 { f128 = 1ull << 62, f256 = 1ull << 60 } fldst;
+typedef enum : u64 { f128 = 1ull << 62, f256 = 1ull << 60 | 1ull << 62 } fldst;
 typedef enum : u64 { RSHUF = 7, RMUL = 6, RGEN = 5, RLUT = 4 } tblreg;
-typedef enum : u64 { wrevn = 2ull << 32, wrclr = 3ull << 32 } wrmode;
+typedef enum : u64 {
+        wrodd = 1ull << 32,
+        wrevn = 2ull << 32,
+        wrclr = 3ull << 32
+} wrmode;
 typedef enum : u64 { ysign = 1ull << 26 } fvecint;
 typedef enum : u64 {
         dstz = 2ull << 25,
@@ -33,6 +38,7 @@ typedef enum : u64 {
         rshift = 4ull << 47,  // z >>= s
         mul    = 10ull << 47, // (x*y) >> s
         xac    = 11ull << 47, // z += (x >> s)
+        yac    = 12ull << 47, // z += (y >> s)
 
         // genlut
         lut5i8  = 15ull << 53,
@@ -40,27 +46,32 @@ typedef enum : u64 {
         gen5u16 = 6ull << 53
 } alu;
 typedef enum : u64 {
-        ln8p  = 11ull << 42,
-        ln8   = 9ull << 42,
-        xtr8p = 13ull << 11
+        ln8q16 = 12ull << 42,
+        ln8p   = 11ull << 42,
+        ln8q   = 10ull << 42,
+        ln8    = 9ull << 42,
+        ln32   = 4ull << 42,
+        xtr8p  = 13ull << 11
 } lnwidth;
 
 static inline u64    zshift(u64 n) { return n << 58; }
 static inline wrmode wrfirst(u64 n) { return 4ull << 38 | n << 32; }
+static inline wrmode wrlast(u64 n) { return 5ull << 38 | n << 32; }
 static inline void   amxset() { nop_op_imm5(17, 0); }
 static inline void   amxclr() { nop_op_imm5(17, 1); }
 static inline void   ldx64(u64 xr, u64 ptr) { amx(0, xr << 56 | ptr); }
 static inline void   ldy64(u64 yr, u64 ptr) { amx(1, yr << 56 | ptr); }
 static inline void   ldx256(u64 xr, u64 ptr) { amx(0, f256 | xr << 56 | ptr); }
 static inline void   stx128(u64 xr, u64 ptr) { amx(2, f128 | xr << 56 | ptr); }
+static inline void   ldz128(u64 zr, u64 ptr) { amx(4, f128 | zr << 56 | ptr); }
 
 static inline void extrx(lnwidth lx, u64 z, u64 x, u64 opt)
 {
         amx(8, 1ull << 26 | lx | z << 20 | x | opt);
 }
-static inline void genlut(alu alu, u64 src, u64 tbl, u64 xyr, u64 opt)
+static inline void genlut(alu alu, u64 src, u64 tbl, u64 rdst, u64 opt)
 {
-        amx(22, alu | src | tbl << 60 | xyr << 20 | opt);
+        amx(22, alu | src | tbl << 60 | rdst << 20 | opt);
 }
 static inline void vecint(alu alu, lnwidth ln, u64 x, u64 y, u64 z, u64 opt)
 {
@@ -143,10 +154,10 @@ static inline void encout(const char *buf)
                 stx128(i, buf + XR(i));
 }
 
-static inline ptr buflen(ptr n) { return ((n + 512 - 1) / 512) * 512; }
+static inline ptr buflen(ptr n, int max) { return ((n + max - 1) / max) * max; }
 static inline int b64pad(int n) { return (3 - (n % 3)) % 3; }
 static inline ptr enclen(ptr n) { return ((n + 2) / 3) * 4; }
-static inline int declen(int n) { return (n / 4) * 3 - b64pad(n); }
+static inline int declen(int n) { return (n / 4) * 3; }
 
 static inline void encpad(b64 *b64)
 {
@@ -179,7 +190,7 @@ overload b64 amx_base64_encode(const char *s)
         b64 result;
         result.srclen = strlen(s);
         result.len    = enclen(result.srclen);
-        result.dat    = malloc(buflen(result.len));
+        result.dat    = malloc(buflen(result.len, 512));
         amx_base64_encode(s, &result);
         return result;
 }
@@ -187,18 +198,111 @@ overload b64 amx_base64_encode(const char *s)
 // ╭──────────────────────────────────────────────────────────────────────────╮
 // │                            AMX BASE64 DECODE                             │
 // ╰──────────────────────────────────────────────────────────────────────────╯
+static void decprep()
+{
+        // Rebuild these tables
+        u8 *decmul = malloc(64);
+        for (int i = 0; i < 64; i += 4) {
+                decmul[i + 0] = 1 << 7;
+                decmul[i + 1] = 1 << 6;
+                decmul[i + 2] = 1 << 3;
+                decmul[i + 3] = 1 << 2;
+        }
+
+        ldy64(RMUL, decmul);
+
+        ldy64(RSHUF,
+              (u8[64]){0,  4,   1,  6,  41, 192, 28,  4, 146, 90, 128, 53, 7,
+                       30, 140, 64, 78, 10, 170, 189, 0, 103, 13, 54,  239});
+
+        ldy64(RGEN, (u16[32]){43, 47, 48, 65, 97, 123});
+        ldy64(RLUT, (i16[32]){19, 16, 4, -65, -71, -127});
+}
+
 static inline void decread(const char *s)
 {
-        ldx256(0, s);
-        ldx256(4, s + 256);
+        for (int i = 0; i < 8; i++)
+                ldz128(ZR(i), s + XR(i));
+}
+
+static inline void dec_u6(int zo)
+{
+        for (int i = 0; i < 8; i++) {
+                extrx(ln8p, ZR(i, zo), XR(i), 0);
+        }
+        for (int i = 0; i < 8; i++) {
+                vecint(mul, ln8p, XR(i), YR(RMUL), ZR(i, zo), 0);
+                vecint(mac, ln8p, XR(i), YR(RMUL), ZR(i, zo), wrevn);
+        }
+        for (int i = 0; i < 8; i++) {
+                extrx(0, ZR(i, 1 + zo), XR(i, 1), wrfirst(63));
+        }
+        for (int i = 0; i < 8; i++) {
+                vecint(xac, 0, XR(i), 0, ZR(i, zo), 0);
+        }
+}
+
+static inline void decout(amx_base64_result *b64)
+{
+        ptr ptr = b64->dat;
+        for (int i = 0; i < 4; i++, ptr += 128) {
+                extrx(ln8p, ZR(i, 0), XR(i + 0), 0);
+                extrx(ln8p, ZR(i, 2), XR(i + 1), 0);
+                stx128(i, ptr);
+        }
+        for (int i = 0; i < 4; i++, ptr += 128) {
+                extrx(ln8p, ZR(i + 4, 0), XR(i + 0), 0);
+                extrx(ln8p, ZR(i + 4, 2), XR(i + 1), 0);
+                stx128(i, ptr);
+        }
+}
+
+static inline void declut(u64 z)
+{
+        for (int i = 0; i < 4; i++)
+                extrx(0, 0, XR(i), wrclr);
+
+        extrx(0, ZR(z, 0), XR(0), wrevn);
+        extrx(0, ZR(z, 0), XR(1), wrodd);
+        extrx(0, ZR(z, 1), XR(2), wrevn);
+        extrx(0, ZR(z, 1), XR(3), wrodd);
+
+        for (int i = 0; i < 4; i++) {
+                genlut(gen5u16, XR(i), RGEN, i, dsty | tbly);
+                genlut(lut5i16, YR(i), RLUT, ZR(z, i), dstz | srcy | tbly);
+                vecint(xac, 0, XR(i), 0, ZR(z, i), ysign);
+        }
 }
 
 overload void amx_base64_decode(const char *s, amx_base64_result *b64)
 {
         amxset();
-        for (u64 buf = b64->dat, end = s + b64->srclen; s < end;
-             s += 48 * 8, buf += 512) {
-                decread(s);
+        decprep();
+        printtbls();
+        // int end = s + b64->srclen;
+        // for (u64 buf = b64->dat; s < end; s += 1024, buf += declen(1024)) {
+        decread(s);
+        for (int i = 0; i < 8; i++) {
+                declut(i);
         }
+        dec_u6(0);
+        dec_u6(2);
+        decout(b64);
+        // }
+        printh();
+        printy();
+        printx();
+        printz();
         amxclr();
+        exit(0);
+}
+
+overload b64 amx_base64_decode(const char *s)
+{
+        b64 result;
+        result.srclen = strlen(s);
+        result.len    = declen(result.srclen) - b64pad(result.srclen);
+        result.dat    = malloc(buflen(result.len, 1024));
+        amx_base64_decode(s, &result);
+        return result;
 }
