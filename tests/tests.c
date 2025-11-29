@@ -22,7 +22,7 @@ dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu\
 dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo\
 ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
 
-static void test(const char *input, const char *expect)
+static void enc_test(const char *input, const char *expect)
 {
         amx_base64_result result = amx_base64_encode(input);
         assert(!strncmp(result.dat, expect, strlen(expect)));
@@ -32,19 +32,19 @@ static void test(const char *input, const char *expect)
 static void enc_go_by_example()
 {
         // from https://gobyexample.com/base64-encoding
-        test("abc123!?$*&()'-=@~", "YWJjMTIzIT8kKiYoKSctPUB+");
+        enc_test("abc123!?$*&()'-=@~", "YWJjMTIzIT8kKiYoKSctPUB+");
 }
 
 static void enc_tutorials_point()
 {
         // from https://www.tutorialspoint.com/java8/java8_base64.htm
-        test("TutorialsPoint?java8", "VHV0b3JpYWxzUG9pbnQ/amF2YTg=");
+        enc_test("TutorialsPoint?java8", "VHV0b3JpYWxzUG9pbnQ/amF2YTg=");
 }
 
 static void enc_wikipedia()
 {
         // from Wikipedia page
-        test(wiki_src, wiki_enc);
+        enc_test(wiki_src, wiki_enc);
 }
 
 static void enc_ipsum()
@@ -54,9 +54,17 @@ static void enc_ipsum()
         free(result.dat);
 }
 
+static void dec_test(const char *input, const char *expect)
+{
+        amx_base64_result result = amx_base64_decode(input);
+        assert(!strncmp(result.dat, expect, strlen(expect)));
+        free(result.dat);
+}
+
 static void dec_go_by_example()
 {
         // from https://gobyexample.com/base64-encoding
+        dec_test("YWJjMTIzIT8kKiYoKSctPUB+", "abc123!?$*&()'-=@~");
 }
 
 static void dec_tutorials_point()
