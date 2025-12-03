@@ -1,4 +1,5 @@
 #include "amx_base64.h"
+#include "debug.h"
 #include <stdlib.h>
 #include <string.h>
 // clang-format off
@@ -262,55 +263,19 @@ static inline void decshf()
 	}
 }
 
-inline static void packbits(uint8_t *result, const uint8_t *input,
-			    uint32_t ibits, uint32_t ebits)
-{
-	uint8_t *end   = result + 64;
-	uint64_t imask = ebits == 64 ? 7 : (1ull << ibits) - 1;
-	for (uint32_t etotal = 0; etotal < 64; etotal += ebits) {
-		uint64_t packed = 0;
-		for (uint32_t i = 0; i < 8; ++i) {
-			packed |= (input[i] & imask) << (i * ibits);
-		}
-		memcpy(result, &packed, 8);
-		result += ibits;
-		input += 8;
-	}
-	memset(result, 0, end - result);
-}
-
 static void decprep()
 {
-	// Rebuild these tables
-	u8 *decmul = malloc(64);
-	memset(decmul, 0, 64);
-	for (int i = 0; i < 64; i += 4) {
-		decmul[i + 0] = 1 << 2;
-		decmul[i + 1] = 1 << 4;
-		decmul[i + 2] = 1 << 6;
-		decmul[i + 3] = 1 << 8;
-	}
-
-	u8 *sflin = malloc(64);
-	memset(sflin, 0, 64);
-	for (int i = 0, base = 0; i < 63; i += 3, base += 4) {
-		sflin[i + 0] = base;
-		sflin[i + 1] = base + 1;
-		sflin[i + 2] = base + 2;
-	}
-
-	u8 *sfltbl = malloc(64);
-	memset(sfltbl, 0, 64);
-	packbits(sfltbl, sflin, 5, 8);
-
-	ldy64(RSHUF, sfltbl);
-	ldy64(RMUL, decmul);
+	ldy64(RSHUF, (u8[64]){32,  8,	82,  12,  74,  138, 53,	 7,   163, 164,
+			      213, 226, 172, 121, 247, 32,  8,	 82,  12,  74,
+			      138, 53,	7,   163, 164, 213, 226, 172, 121, 247,
+			      32,  8,	82,  12,  74,  138, 53,	 7,   163, 4});
+	ldy64(RMUL,
+	      (u8[64]){4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0,
+		       4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0,
+		       4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0,
+		       4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0, 4, 16, 64, 0});
 	ldy64(RGEN, (u16[32]){43, 47, 48, 65, 97, 123});
 	ldy64(RLUT, (i16[32]){19, 16, 4, -65, -71, -127});
-
-	free(decmul);
-	free(sflin);
-	free(sfltbl);
 }
 
 static inline void dec_u6()
