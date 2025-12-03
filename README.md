@@ -18,7 +18,8 @@ I will complete the rest later w' proper benchmarking code and maybe revisit the
 
 - [x] Encode
 - [ ] Decode
-- [ ] Hi | Lo split shuffle?
+- [ ] Optimize
+- [ ] Benchmark
 
 #### amx_base64_encode
 
