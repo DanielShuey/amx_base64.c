@@ -17,7 +17,7 @@ Tried to do a Hi|Lo byte split but wasn't smart enough to pull it off :(. In con
 I will complete the rest later w' proper benchmarking code and maybe revisit the split.
 
 - [x] Encode
-- [ ] Decode
+- [x] Decode
 - [ ] Optimize
 - [ ] Benchmark
 
