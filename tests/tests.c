@@ -9,6 +9,7 @@ static const unsigned char ipsum4096enc[] = {
 #embed "ipsum_4096_enc.txt"
     , 0};
 
+// from Wikipedia page
 const char wiki_src[] =
     "Man is distinguished, not only by his reason, but by this singular passion from \
 other animals, which is a lust of the mind, that by a perseverance of delight \
@@ -41,11 +42,7 @@ static void enc_tutorials_point()
 	enc_test("TutorialsPoint?java8", "VHV0b3JpYWxzUG9pbnQ/amF2YTg=");
 }
 
-static void enc_wikipedia()
-{
-	// from Wikipedia page
-	enc_test(wiki_src, wiki_enc);
-}
+static void enc_wikipedia() { enc_test(wiki_src, wiki_enc); }
 
 static void enc_ipsum()
 {
@@ -61,16 +58,6 @@ static void dec_test(const char *input, const char *expect)
 	free(result.dat);
 }
 
-static void foo()
-{
-	uint8_t input[1024];
-	for (int i = 0; i < 1024; i++)
-		input[i] = 63;
-
-	amx_base64_result result = amx_base64_decode(input);
-	free(result.dat);
-}
-
 static void dec_go_by_example()
 {
 	// from https://gobyexample.com/base64-encoding
@@ -83,13 +70,14 @@ static void dec_tutorials_point()
 	dec_test("VHV0b3JpYWxzUG9pbnQ/amF2YTg=", "TutorialsPoint?java8");
 }
 
-static void dec_wikipedia()
-{
-	// from Wikipedia page
-	dec_test(wiki_enc, wiki_src);
-}
+static void dec_wikipedia() { dec_test(wiki_enc, wiki_src); }
 
-static void dec_ipsum() {}
+static void dec_ipsum()
+{
+	amx_base64_result result = amx_base64_decode(ipsum4096enc);
+	assert(!strncmp(result.dat, ipsum4096, strlen(ipsum4096) - 1));
+	free(result.dat);
+}
 
 int test_enc()
 {
@@ -102,11 +90,10 @@ int test_enc()
 
 int test_dec()
 {
-	// foo();
-	// dec_go_by_example();
-	// dec_tutorials_point();
+	dec_go_by_example();
+	dec_tutorials_point();
 	dec_wikipedia();
-	// dec_ipsum();
+	dec_ipsum();
 	return 0;
 }
 

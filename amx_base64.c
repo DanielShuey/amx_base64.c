@@ -1,5 +1,4 @@
 #include "amx_base64.h"
-#include "debug.h"
 #include <stdlib.h>
 #include <string.h>
 // clang-format off
@@ -206,14 +205,13 @@ overload b64 amx_base64_encode(const char *s)
 
 static inline void decread(const char *s)
 {
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 4; i++) {
 		ldz128(ZR(i), s + (i * 128));
 	}
 }
 
-static inline void decout(amx_base64_result *b64)
+static inline void decout(char *buf)
 {
-	ptr ptr	 = b64->dat;
 	int xptr = 0;
 
 	for (int i = 0; i < 4; i++) {
@@ -221,12 +219,9 @@ static inline void decout(amx_base64_result *b64)
 			extrx(0, ZR(i, j), xptr, wrfirst(24));
 		}
 	}
-	for (int i = 0; i < 8; i += 2) {
-		stx128(i, ptr);
-		ptr += 128;
-	}
-
-	printf("%s", b64->dat);
+	stx128(0, buf + (0 * 128));
+	stx128(2, buf + (1 * 128));
+	stx128(4, buf + (2 * 128));
 }
 
 static inline void declut()
@@ -297,16 +292,15 @@ overload void amx_base64_decode(const char *s, amx_base64_result *b64)
 {
 	amxset();
 	decprep();
-	// int end = s + b64->srclen;
-	// for (u64 buf = b64->dat; s < end; s += 1024, buf += declen(1024)) {
-	decread(s);
-	declut();
-	dec_u6();
-	decshf();
-	decout(b64);
-	// }
+	ptr end = s + b64->srclen;
+	for (u64 buf = b64->dat; s < end; s += 512, buf += 384) {
+		decread(s);
+		declut();
+		dec_u6();
+		decshf();
+		decout(buf);
+	}
 	amxclr();
-	exit(0);
 }
 
 overload b64 amx_base64_decode(const char *s)
@@ -314,7 +308,7 @@ overload b64 amx_base64_decode(const char *s)
 	b64 result;
 	result.srclen = strlen(s);
 	result.len    = declen(result.srclen) - b64pad(result.srclen);
-	result.dat    = malloc(buflen(result.len, 1024));
+	result.dat    = malloc(buflen(result.len, 512));
 	amx_base64_decode(s, &result);
 	return result;
 }
